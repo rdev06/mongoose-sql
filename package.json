@@ -1,0 +1,9 @@
+{
+  "name": "mongoose-sql",
+  "version": "1.0.0",
+  "description": "This package helps to convert mongoose api into sql api",
+  "main": "index.js",
+  "keywords": ["sql", "mongoose", "mongoose-sql"],
+  "author": "Roshan Dev",
+  "license": "ISC"
+}
