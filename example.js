@@ -33,11 +33,11 @@ const Nsql = require('.');
 const userSchema = new Nsql(Schema, 'User');
 
 try {
-  const createdData = userSchema.create(data);
-  const getOneData = userSchema
-    .findOne({ $and: [{ age: { $lt: 37 } }, { name: 'Roshan' }], occupation:{$lt:'Bussiness'} },['-occupation', '-name'])
-    .exec();
-  console.log(getOneData);
+  const createdData = userSchema.inserMany([data, data, data]);
+  // const getOneData = userSchema
+  //   .findOne({ $and: [{ age: { $lt: 37 } }, { name: 'Roshan' }], occupation:{$lt:'Bussiness'} },['-occupation', '-name'])
+  //   .exec();
+  console.log(createdData);
 } catch (error) {
   console.log(error);
 }

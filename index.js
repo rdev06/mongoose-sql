@@ -50,9 +50,26 @@ class Nsql {
   create(data) {
     if (Array.isArray(data)) throw 'Create method did not accept array. Use insertMany method instead';
     data = this.getValid(data);
-    return `INSERT INTO ${this.Model} (${Object.keys(data)}) VALUES (${Object.values(data)})`;
+    return `INSERT INTO ${this.Model} (${Object.keys(data)}) VALUES (${Object.values(data).map((e) =>
+      typeof e != 'string' ? e : `'${e}'`
+    )})`;
   }
-  inserMany() {}
+  inserMany(datas) {
+    if (!Array.isArray(datas)) throw 'inserMany method need array. Use create method instead';
+    const keys = Object.keys(datas[0]);
+    const values = [];
+
+    for (const data of datas) {
+      const val = [];
+      for (const k of keys) {
+        let v = data[k];
+        typeof data[k] == 'string' && (v = `'${data[k]}'`)
+        val.push(v);
+      }
+      values.push(`(${val})`);
+    }
+    return `INSERT INTO ${this.Model} (${keys}) VALUES ${values}`
+  }
   getValidProjectionFeild(selectQuery = []) {
     if (typeof selectQuery == 'string') {
       selectQuery = selectQuery.split(' ');
@@ -77,12 +94,12 @@ class Nsql {
     return Object.keys(keyObjectMap);
   }
 
-  getValidWhereQuery(whereQuery = {}, q='', opr='AND') {
-      let toReturn = '';
+  getValidWhereQuery(whereQuery = {}, q = '', opr = 'AND') {
+    let toReturn = '';
     for (const key in whereQuery) {
       if (['$or', '$and'].includes(key)) {
         if (whereQuery[key].length < 2) throw `Atleast 2 nodes are required for ${key} operation`;
-        const qq = whereQuery[key].map(e => this.getValidWhereQuery(e, '', '')).join(` ${key.slice(1)} `);
+        const qq = whereQuery[key].map((e) => this.getValidWhereQuery(e, '', '')).join(` ${key.slice(1)} `);
         toReturn += ` AND (${qq})`;
       } else {
         if (typeof whereQuery[key] !== 'object') {
@@ -111,7 +128,7 @@ class Nsql {
             q += ` ${opr} ${key} ${opMap[op]} ${value}`;
           }
         }
-        toReturn +=  q;
+        toReturn += q;
       }
     }
     return toReturn;
